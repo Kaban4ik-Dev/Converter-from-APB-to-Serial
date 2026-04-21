@@ -1,0 +1,55 @@
+# Quartus project files
+*.qws
+*.qsf.bak
+*.qpf.bak
+
+# Backup files
+*.bak
+*~
+
+# Database directories
+db/
+incremental_db/
+output_files/
+simulation/
+*.rpt
+*.log
+*.summary
+*.pin
+*.done
+
+# Simulation files
+modelsim/
+vsim.wlf
+transcript
+*.vcd
+*.fsdb
+*.wl
+
+# Synthesis/implementation
+*.sof
+*.pof
+*.elf
+*.hexout
+*.map
+*.rpt
+*.pin
+*.ttf
+*.txt
+
+# Version control junk
+.DS_Store
+Thumbs.db
+
+# Файлы IDE
+.vscode/
+.idea/
+*.swp
+
+# Исходники в rtl/ и tb/ - игнорируются все .sv вне этих папок
+/*.sv
+/*.sv.bak
+
+# Явно разрешаются те, что в rtl/ и tb/
+!rtl/
+!tb/
