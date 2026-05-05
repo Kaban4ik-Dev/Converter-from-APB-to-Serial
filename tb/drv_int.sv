@@ -4,17 +4,16 @@
 
 `include "../rtl/constants.sv"
 
-class drv_int;
-    string name;        // Name
-    bit is_running = 1; // Driver state
-    int tr_cnt;         // Transaction count
-    int wr_cnt;         // Write operations count
-    int rd_cnt;         // Read transactions count
+class drv_int #(int TIMEOUT = 2000);
+    string name; // Name
+    int tr_cnt;  // Transaction count
+    int wr_cnt;  // Write operations count
+    int rd_cnt;  // Read transactions count
 
     virtual interface apb_if.master vif;         // Interface for APB signals
     mailbox #(bit [DATA_WIDTH-1:0]) apb_wr_mbox; // Mailbox A - data to write
     mailbox #(bit [DATA_WIDTH-1:0]) apb_rd_mbox; // Mailbox B - place to put read data
-    mailbox #(bit) apb_op_mbox;                  // Milbox C - operations (1 - read, 0 - write)
+    mailbox #(bit) apb_op_mbox;                  // Mailbox C - operations (1 - read, 0 - write)
     
     //================================================
     // Constructor
@@ -51,11 +50,13 @@ class drv_int;
         bit [DATA_WIDTH-1:0] rd_data; // Read data
         bit cmd;                      // Command
         
+        time curr_time = $time;
+
         // Reset
         perform_reset();
         
         // Work cycle
-        for (int i = 0; i < TIMEOUT * 0.98; i++) begin
+        while (curr_time < TIMEOUT * 0.98) begin
             // While there is a pending operation
             while (apb_op_mbox.num() > 0) begin
                 apb_op_mbox.get(cmd);
@@ -65,6 +66,11 @@ class drv_int;
                     perform_write();
                 end
             end
+            // Skip time if there is no tasks
+            if (apb_op_mbox.num() <= 0) begin
+                wait_clocks(1);
+            end
+            curr_time = $time;
         end
 
         // Finish work

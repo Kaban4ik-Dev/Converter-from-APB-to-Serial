@@ -1,5 +1,5 @@
 #====================================================
-# run.do - QuestaSim script
+# QuestaSim script to test APB
 #====================================================
 
 # Clean previous work

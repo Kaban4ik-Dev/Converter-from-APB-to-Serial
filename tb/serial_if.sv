@@ -6,10 +6,21 @@
 
 interface serial_if ();
     // Serial Interface
-    logic sclk,
-    wire  sdata,
-    logic sctrl,
-    logic sready
+    logic sclk;
+    logic srst;
+    wire  sdata;
+    logic sctrl;
+    logic sready;
+
+    // Separate ports for sdata for Testbench
+    bit sdata_out_en;      // 1 - TB writes, 0 - TB reads
+    bit sdata_out_value;   // Data from TB
+    
+    // Tri-stable driver
+    assign sdata = sdata_out_en ? sdata_out_value : 1'bz;
+    
+    // Output signal for TB
+    wire sdata_in_value = sdata;
 
     // Modport for Master signals
     modport master(
@@ -18,7 +29,7 @@ interface serial_if ();
         // Master output
         output sctrl,
         // Master input
-        input  sclk, sready
+        input  sclk, srst, sready
     );
 
     // Modport for Slave signals
@@ -26,14 +37,14 @@ interface serial_if ();
         // Slave inout
         inout sdata,
         // Slave input
-        input  sctrl,
+        input  sctrl, sdata_in_value,
         // Slave output
-        output sclk, sready
+        output sclk, srst, sready, sdata_out_en, sdata_out_value
     );
     
     // Modport for Monitor signals
     modport monitor(
         // Monitor input
-        input sclk, sctrl, sdata, sready
+        input sclk, srst, sctrl, sdata, sready
     );
 endinterface

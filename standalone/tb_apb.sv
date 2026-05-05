@@ -1,7 +1,7 @@
 
 //====================================================
-// testbench_apb_loopback - Tests full circle:
-// APB Write -> RAM A -> Loopback -> RAM B -> APB Read
+// Tests data circle:
+// APB Write -> RAM (Write as A) -> RAM (Read as B) -> APB Read
 //====================================================
 
 `include "../rtl/constants.sv"
@@ -37,7 +37,7 @@ module tb_apb;
     );
     
     // Driver instance - Master
-    drv_int driver;
+    drv_int #(2000) driver;
     
     //================================================
     // Clock generation
@@ -53,8 +53,8 @@ module tb_apb;
     // Simulation timeout
     //================================================
     initial begin
-        #TIMEOUT;
-        $display("Timeout: simulation stopped after %0d ns", TIMEOUT);
+        #2000;
+        $display("Timeout: simulation stopped after %0d ns", 2000);
         $finish;
     end
     
@@ -100,7 +100,7 @@ module tb_apb;
         $display("\n=========================================");
         $display("           Driver operations             ");
         $display("=========================================\n");
-        // Uncomment the desired debug output in the drv_in.sv driver file
+        // Uncomment the desired debug output in the drv_int.sv driver file
         driver.run();
 
         // Check results
