@@ -2,14 +2,13 @@
 
 //====================================================
 // Converter - APB Slave to Serial Master Bridge
-// Wraps apb_bridge and serial_bridge modules
 //====================================================
 module converter (
     // APB Slave Interface
     input  logic        PCLK,
     input  logic        PRESETn,
     input  logic [31:0] PADDR,
-    input  logic [2:0]  PPROT,
+    input  logic [1:0]  PPROT,
     input  logic        PSEL,
     input  logic        PENABLE,
     input  logic        PWRITE,
@@ -21,6 +20,7 @@ module converter (
     
     // Serial Interface (master)
     input  logic        sclk,
+    input  logic        srst,
     inout  wire         sdata,
     output logic        sctrl,
     input  logic        sready
@@ -30,21 +30,23 @@ module converter (
     // Internal RAM connections
     //================================================
     
-    // RAM A (TX data from APB to Serial)
+    // RAM A
     // APB writes to RAM A -> Serial reads from RAM A
     logic                     ram_a_wr_en;
     logic [DATA_WIDTH-1:0]    ram_a_wr_data;
     logic                     ram_a_wr_full;
     logic                     ram_a_rd_en;
+    logic                     ram_a_rd_valid;
     logic [DATA_WIDTH-1:0]    ram_a_rd_data;
     logic                     ram_a_rd_empty;
     
-    // RAM B (RX data from Serial to APB)
+    // RAM B
     // Serial writes to RAM B -> APB reads from RAM B
     logic                     ram_b_wr_en;
     logic [DATA_WIDTH-1:0]    ram_b_wr_data;
     logic                     ram_b_wr_full;
     logic                     ram_b_rd_en;
+    logic                     ram_b_rd_valid;
     logic [DATA_WIDTH-1:0]    ram_b_rd_data;
     logic                     ram_b_rd_empty;
     
@@ -56,11 +58,12 @@ module converter (
     ram ram_a (
         .clk_wr    (PCLK),
         .clk_rd    (sclk),
-        .rst       (~PRESETn),
+        .rst       (PRESETn),
         .wr_en     (ram_a_wr_en),
         .wr_data   (ram_a_wr_data),
         .wr_full   (ram_a_wr_full),
         .rd_en     (ram_a_rd_en),
+        .rd_valid  (ram_a_rd_valid),
         .rd_data   (ram_a_rd_data),
         .rd_empty  (ram_a_rd_empty)
     );
@@ -69,11 +72,12 @@ module converter (
     ram ram_b (
         .clk_wr    (sclk),
         .clk_rd    (PCLK),
-        .rst       (~PRESETn),
+        .rst       (PRESETn),
         .wr_en     (ram_b_wr_en),
         .wr_data   (ram_b_wr_data),
         .wr_full   (ram_b_wr_full),
         .rd_en     (ram_b_rd_en),
+        .rd_valid  (ram_b_rd_valid),
         .rd_data   (ram_b_rd_data),
         .rd_empty  (ram_b_rd_empty)
     );
@@ -83,6 +87,7 @@ module converter (
     //================================================
     // APB master writes to RAM A, reads from RAM B
     apb_bridge apb_bridge_inst (
+        // APB Slave Interface
         .PCLK      (PCLK),
         .PRESETn   (PRESETn),
         .PADDR     (PADDR),
@@ -95,12 +100,13 @@ module converter (
         .PREADY    (PREADY),
         .PRDATA    (PRDATA),
         .PSLVERR   (PSLVERR),
-        // Write RAM Interface (RAM A)
+        // RAM A interface (write-only)
         .wr_en     (ram_a_wr_en),
         .wr_data   (ram_a_wr_data),
         .wr_full   (ram_a_wr_full),
-        // Read RAM Interface (RAM B)
+        // RAM B interface (read-only)
         .rd_en     (ram_b_rd_en),
+        .rd_valid  (ram_b_rd_valid),
         .rd_data   (ram_b_rd_data),
         .rd_empty  (ram_b_rd_empty)
     );
@@ -110,20 +116,21 @@ module converter (
     //================================================
     // Serial master reads from RAM A, writes to RAM B
     serial_bridge serial_bridge_inst (
-        .rst            (~PRESETn),
-        // RAM A interface (read-only, TX data source)
-        .ram_a_rd_en    (ram_a_rd_en),
-        .ram_a_rd_data  (ram_a_rd_data),
-        .ram_a_rd_empty (ram_a_rd_empty),
-        // RAM B interface (write-only, RX data destination)
-        .ram_b_wr_en    (ram_b_wr_en),
-        .ram_b_wr_data  (ram_b_wr_data),
-        .ram_b_wr_full  (ram_b_wr_full),
-        // Serial interface
-        .sclk           (sclk),
-        .sdata          (sdata),
-        .sctrl          (sctrl),
-        .sready         (sready)
+        // Serial Master Interface
+        .sclk     (sclk),
+        .srst     (srst),
+        .sctrl    (sctrl),
+        .sdata    (sdata),
+        .sready   (sready),
+        // RAM A interface (read-only)
+        .rd_en    (ram_a_rd_en),
+        .rd_valid (ram_a_rd_valid),
+        .rd_data  (ram_a_rd_data),
+        .rd_empty (ram_a_rd_empty),
+        // RAM B interface (write-only)
+        .wr_en    (ram_b_wr_en),
+        .wr_data  (ram_b_wr_data),
+        .wr_full  (ram_b_wr_full)
     );
 
 endmodule

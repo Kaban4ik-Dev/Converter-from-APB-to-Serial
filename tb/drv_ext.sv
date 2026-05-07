@@ -44,8 +44,9 @@ class drv_ext #(int TIMEOUT = 2000);
         vif.sready = 1'b0;
         
         // Work cycle
-        $display("[%0t] Driver started", $time);
+        $display("[%0t] External driver started", $time);
         while (curr_time < TIMEOUT * 0.95) begin
+        //forever begin
 
             // While there is a running operation
             while (vif.sctrl == 1'b1) begin
@@ -102,10 +103,10 @@ class drv_ext #(int TIMEOUT = 2000);
             // Get current time
             curr_time = $time;
         end
-        $display("[%0t] Driver stopped", $time);
 
         // Finish work
         //print_stats();
+        $display("[%0t] External driver stopped", $time);
     endtask
 
     //================================================

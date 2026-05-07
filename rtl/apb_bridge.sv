@@ -102,7 +102,6 @@ module apb_bridge (
             end
             
             ACCESS: begin
-                //PREADY = 1'b0;
                 // Write operation finish
                 if (PWRITE) begin
                     PREADY = 1'b0;

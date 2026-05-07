@@ -56,7 +56,9 @@ class drv_int #(int TIMEOUT = 2000);
         perform_reset();
         
         // Work cycle
-        while (curr_time < TIMEOUT * 0.98) begin
+        $display("[%0t] Internal driver started", $time);
+        while (curr_time < TIMEOUT * 0.95) begin
+        //forever begin
             // While there is a pending operation
             while (apb_op_mbox.num() > 0) begin
                 apb_op_mbox.get(cmd);
@@ -70,11 +72,14 @@ class drv_int #(int TIMEOUT = 2000);
             if (apb_op_mbox.num() <= 0) begin
                 wait_clocks(1);
             end
+            
+            // Get current time
             curr_time = $time;
         end
 
         // Finish work
         //print_stats();
+        $display("[%0t] Internal driver stopped", $time);
     endtask
 
     //================================================

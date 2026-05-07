@@ -8,8 +8,8 @@ interface serial_if ();
     // Serial Interface
     logic sclk;
     logic srst;
-    wire  sdata;
     logic sctrl;
+    wire  sdata;
     logic sready;
 
     // Separate ports for sdata for Testbench
