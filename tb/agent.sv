@@ -50,21 +50,22 @@ class agent #(int TIMEOUT = 2000);
                     // Get operation (1 - read, 0 - write)
                     if (rd_data[31] == 1'b0) begin
                         // Store data
-                        mem[rd_data[26:0]] = rd_data;
+                        mem[rd_data[30:27]] = rd_data[26:0];
                         // Calculate sin and store result
-                        //mem[rd_data[30:27] + 16] = $sin(mem[rd_data[30:27]][26:0]);
-                        mem[rd_data[30:27] + 16] = 32'h12345678;
-                        $display("[%0t] Word written in Agent: 0x%08h", $time, rd_data);
+                        //$display("[%0t] Word written in Agent: 0x%08h", $time, rd_data);
+                        //$display("[%0t] Input in sin: 0x%0d", $time, mem[rd_data[30:27]]);
+                        sin(mem[rd_data[30:27]], mem[rd_data[30:27] + 16]);
+                        //$display("[%0t] Output from sin: 0x%0d", $time, mem[rd_data[30:27] + 16]);
                     end else begin
                         wr_data = mem[rd_data[30:27] + 16];
-                        $display("[%0t] Word read from Agent: 0x%08h", $time, wr_data);
+                        //$display("[%0t] Word read from Agent: 0x%08h", $time, wr_data);
                         // Write result to the mailbox
                         s_rd_mbox.put(wr_data);
                     end
                 
                 // If address if out of range
                 end else begin
-                    $display("[%0t] Error: address out of range in Agent: 0x%08h", $time, rd_data);
+                    //$display("[%0t] Error: address out of range in Agent: 0x%08h", $time, rd_data);
                     // If it is a read operation
                     if (rd_data[31] == 1'b1) begin
                         wr_data = 32'h00000000;
@@ -79,6 +80,29 @@ class agent #(int TIMEOUT = 2000);
             curr_time = $time;
         end
         $display("[%0t] Agent stopped", $time);
+    endtask
+
+    
+    //================================================
+    // Sin calculating task
+    // Using Taylor series
+    //================================================
+    task sin(
+        input  bit [26:0] x, // Input in radians 0 - 2pi to 0 - 134 217 727
+        output bit [31:0] y  // Output in number (IEEE 754)
+    );
+        real rad;
+        real result;
+
+        // Convert input x into angle in radians
+        rad = (real'(x) * 2 * PI / 134217727.0);
+        //$display("[%0t] Radians: %0g", $time, rad);
+        // Calculate Teylor series
+        result = rad - (rad**3)/6.0 + (rad**5)/120.0 - (rad**7)/5040.0 + (rad**9)/362880.0;
+        //$display("[%0t] Sin value: %0g", $time, result);
+        
+        // Convert from float to IEEE 754
+        y = $shortrealtobits(result);
     endtask
 
 endclass

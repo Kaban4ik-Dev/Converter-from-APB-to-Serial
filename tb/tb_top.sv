@@ -8,8 +8,9 @@
 `include "drv_ext.sv"
 `include "agent.sv"
 `include "tests.sv"
+`include "scoreboard.sv"
 
-parameter TIMEOUT = 10000;
+parameter TIMEOUT = 30000;
 
 module tb_top;
     
@@ -27,6 +28,8 @@ module tb_top;
     
     mailbox #(bit [DATA_WIDTH-1:0]) s_wr_mbox = new();   // Mailbox Serial A - from Master to Slave (write)
     mailbox #(bit [DATA_WIDTH-1:0]) s_rd_mbox = new();   // Mailbox Serial B - from Slave to Master (read)
+
+    mailbox #(bit [DATA_WIDTH-1:0]) copy_mbox = new();   // Mailbox with copies of transactions for Scoreboard
     
     // APB interface
     apb_if apb_vif();
@@ -66,12 +69,11 @@ module tb_top;
     // External Agent - calculates sin
     agent #(TIMEOUT) agent_ext;
 
+    // Test class
+    test_full test;
 
-    //================================================
-    // Test classes
-    //================================================
-
-    TestWriteRead test;
+    // Scoreboard class
+    scoreboard sc_board;
     
     //================================================
     // Clock generation
@@ -88,15 +90,6 @@ module tb_top;
 
     assign apb_vif.PCLK = PCLK;
     assign s_vif.sclk = sclk;
-
-    //================================================
-    // Simulation timeout
-    //================================================
-    //initial begin
-    //    #TIMEOUT;
-    //    $display("Timeout: simulation stopped after %0d ns", TIMEOUT);
-    //    $finish;
-    //end
     
     //================================================
     // Main test sequence
@@ -116,8 +109,11 @@ module tb_top;
         // Create agent
         agent_ext = new("AGENT_EXT", s_rd_mbox, s_wr_mbox);
         
-        // Create test classes
-        test = new("Test 1", apb_wr_mbox, apb_op_mbox);
+        // Create tests
+        test = new("Full Test", apb_wr_mbox, copy_mbox, apb_op_mbox);
+
+        // Create scoreboard
+        sc_board = new("Scoreboard", copy_mbox, apb_rd_mbox);
 
         // Load read operations
         $display("\n=========================================");
@@ -130,40 +126,28 @@ module tb_top;
         $display("\n=========================================");
         $display("           Driver operations             ");
         $display("=========================================\n");
-        // Uncomment the desired debug output in the driver files
+        // Uncomment the desired debug output in file
         fork
             begin
-                //$display("[%0t] Internal driver started", $time);
                 apb_drv_int.run();
-                //$display("[%0t] Internal driver stopped", $time);
             end
         join_none
         fork
             begin
-                //$display("[%0t] External driver started", $time);
                 s_drv_ext.run();
-                //$display("[%0t] External driver stopped", $time);
             end
         join_none
         fork
             begin
-                //$display("[%0t] Agent started", $time);
                 agent_ext.run();
-                //$display("[%0t] Agent stopped", $time);
             end
         join_none
         
         #TIMEOUT;
         $display("Timeout: simulation stopped after %0d ns", TIMEOUT);
 
-        $display("\n=========================================");
-        $display("                 Results                 ");
-        $display("=========================================\n");
-        while (apb_rd_mbox.num() > 0) begin
-            apb_rd_mbox.get(result_word);
-            $display("Read data: 0x%0h", result_word);
-        end
-        $display("\n");
+        // Display results
+        sc_board.run();
 
         $finish;
     end

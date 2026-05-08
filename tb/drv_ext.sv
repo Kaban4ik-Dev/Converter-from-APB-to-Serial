@@ -8,7 +8,7 @@ class drv_ext #(int TIMEOUT = 2000);
     string name; // Name
     int tr_cnt;  // Transaction count
     int wr_cnt;  // Write operations count
-    int rd_cnt;  // Read transactions count
+    int rd_cnt;  // Read operations count
 
     virtual interface serial_if.slave vif;     // Interface for Serial signals
     mailbox #(bit [DATA_WIDTH-1:0]) s_wr_mbox; // Mailbox A - from Master to Slave (write)
@@ -130,8 +130,6 @@ class drv_ext #(int TIMEOUT = 2000);
         $display("  Successful transactions: %0d", tr_cnt);
         $display("    - Writes:  %0d", wr_cnt);
         $display("    - Reads:   %0d", rd_cnt);
-        //$display("  WR mailbox remaining:    %0d", apb_wr_mbox.num());
-        //$display("  RD mailbox size:         %0d", apb_rd_mbox.num());
         $display("========================================\n");
     endfunction
     

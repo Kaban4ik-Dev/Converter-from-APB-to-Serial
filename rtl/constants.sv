@@ -20,9 +20,7 @@ parameter CLK_B = 15; // CLK for Serial in RAM testbench
 parameter APB_ADDR_W = 32;
 parameter APB_DATA_W = 32;
 
-// ==== For Agent command interpretation ====
-parameter AG_C = 1; // Agent command length, calculates from 32 bit
-parameter AG_A = 4; // Agent address length, calculates from 32 - AG_C bit
-parameter AG_D = 27; // Agent data length, calculates from 32 - AG_C - AG_A bit
+// ==== For Agent sinus calculation ====
+real PI = 3.14159265358979322846264338327950288419716939937510; // PI constant
 
 `endif

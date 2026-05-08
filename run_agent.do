@@ -13,24 +13,11 @@ vmap work work
 
 # Compile all files in correct order
 vlog -sv +define+QUESTA rtl/constants.sv
-vlog -sv rtl/ram.sv
-vlog -sv rtl/apb_bridge.sv
-vlog -sv rtl/serial_bridge.sv
-vlog -sv rtl/converter.sv
-vlog -sv tb/apb_if.sv
-vlog -sv tb/drv_int.sv
-vlog -sv tb/serial_if.sv
-vlog -sv tb/drv_ext.sv
 vlog -sv tb/agent.sv
-vlog -sv tb/tests.sv
-vlog -sv tb/tb_top.sv
+vlog -sv standalone/tb_agent.sv
 
 # Load simulation
-vsim -voptargs=+acc work.tb_top
-
-# Add waves
-add wave -radix hex /tb_top/apb_vif/*
-add wave -radix hex /tb_top/s_vif/*
+vsim -voptargs=+acc work.tb_agent
 
 # Run simulation
 run -all

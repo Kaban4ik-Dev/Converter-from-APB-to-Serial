@@ -8,7 +8,7 @@ class drv_int #(int TIMEOUT = 2000);
     string name; // Name
     int tr_cnt;  // Transaction count
     int wr_cnt;  // Write operations count
-    int rd_cnt;  // Read transactions count
+    int rd_cnt;  // Read operations count
 
     virtual interface apb_if.master vif;         // Interface for APB signals
     mailbox #(bit [DATA_WIDTH-1:0]) apb_wr_mbox; // Mailbox A - data to write
@@ -28,15 +28,6 @@ class drv_int #(int TIMEOUT = 2000);
         this.wr_cnt = 0;
         this.rd_cnt = 0;
         this.vif = vif;
-		this.set_mailboxes(apb_wr_mbox, apb_rd_mbox, apb_op_mbox);
-    endfunction
-    
-    //================================================
-    // Set mailboxes
-    //================================================
-    function void set_mailboxes(mailbox #(bit [DATA_WIDTH-1:0]) apb_wr_mbox, 
-                                mailbox #(bit [DATA_WIDTH-1:0]) apb_rd_mbox,
-                                mailbox #(bit) apb_op_mbox);
         this.apb_wr_mbox = apb_wr_mbox;
         this.apb_rd_mbox = apb_rd_mbox;
         this.apb_op_mbox = apb_op_mbox;
@@ -129,7 +120,7 @@ class drv_int #(int TIMEOUT = 2000);
         vif.PENABLE <= 1'b0;
         
         // Display result
-        //$display("[%0t] 0x%08h: WRITE successful", $time, write_data);
+        $display("[%0t] 0x%08h: WRITE successful", $time, write_data);
         tr_cnt++;
         wr_cnt++;
         wait_clocks(1);
@@ -163,7 +154,7 @@ class drv_int #(int TIMEOUT = 2000);
 
         // Display result
         apb_rd_mbox.put(read_data);
-        //$display("[%0t] 0x%08h: READ successful", $time, read_data);
+        $display("[%0t] 0x%08h: READ successful", $time, read_data);
         tr_cnt++;
         rd_cnt++;
         wait_clocks(1);
