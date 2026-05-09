@@ -21,7 +21,7 @@ virtual class ABCTest;
         this.cmd_mbox = cmd_mbox;
     endfunction
     
-    // Pure virtula method - ABC cannot have test sequence
+    // Pure virtual task - ABC cannot have test sequence
     pure virtual task run();
     
     // Send test transaction into mailboxes
@@ -65,15 +65,36 @@ class test_full extends ABCTest;
         perform_transaction(1'b0, 1'b1, addr, 27'hBEEF); // Send read operation
         perform_transaction(1'b1, 1'b0, addr, 27'hDEAD); // Read data from converter
     endtask
+
+    // Write 4 words
+    task write_seq(bit [3:0] addr, bit [26:0] data1, bit [26:0] data2, bit [26:0] data3, bit [26:0] data4);
+        write(addr, data1);
+        write(addr+1, data2);
+        write(addr+2, data3);
+        write(addr+3, data4);
+    endtask
+
+    // Read 4 words
+    task read_seq(bit [3:0] addr);
+        read(addr);
+        read(addr+1);
+        read(addr+2);
+        read(addr+3);
+    endtask
     
     virtual task run();
         
-        // Perform 10 sequential operations
-        for (int i = 0; i < 10; i++) begin
+        // Perform 4 sequential operations
+        for (int i = 0; i < 4; i++) begin
             write(i, $random());
             read(i);
             #10;
         end
+
+        // Perfom sequential write and read
+        write_seq(4, $random(), $random(), $random(), $random());
+        read_seq(4);
+
         
     endtask
 endclass

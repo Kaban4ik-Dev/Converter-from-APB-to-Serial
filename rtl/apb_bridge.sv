@@ -56,8 +56,10 @@ module apb_bridge (
     always_comb begin
         PREADY = 1'b0;
         wr_en = 1'b0;
+        wr_data = '0;
         rd_en = 1'b0;
         PRDATA = '0;
+        PSLVERR = 1'b0;
         apb_next_state = apb_state;
         
         case (apb_state)

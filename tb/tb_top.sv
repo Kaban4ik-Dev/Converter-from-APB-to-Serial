@@ -10,16 +10,13 @@
 `include "tests.sv"
 `include "scoreboard.sv"
 
-parameter TIMEOUT = 30000;
+parameter TIMEOUT = 80000;
 
 module tb_top;
     
     // Clock
     logic PCLK;
     logic sclk;
-
-    // Variables
-    bit [DATA_WIDTH-1:0] result_word;
     
     // Mailboxes
     mailbox #(bit [DATA_WIDTH-1:0]) apb_wr_mbox = new(); // Mailbox APB A - data to write
@@ -80,12 +77,12 @@ module tb_top;
     //================================================
     initial begin
         PCLK = 0;
-        forever #30 PCLK = ~PCLK;
+        forever #10 PCLK = ~PCLK;
     end
 
     initial begin
         sclk = 0;
-        forever #10 sclk = ~sclk;
+        forever #30 sclk = ~sclk;
     end
 
     assign apb_vif.PCLK = PCLK;

@@ -1,5 +1,5 @@
 //================================================
-// Test module for Serial with one cycled RAM
+// Test module for Serial
 //================================================
 
 `include "../rtl/constants.sv"

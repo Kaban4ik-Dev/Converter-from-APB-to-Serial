@@ -120,7 +120,7 @@ class drv_int #(int TIMEOUT = 2000);
         vif.PENABLE <= 1'b0;
         
         // Display result
-        $display("[%0t] 0x%08h: WRITE successful", $time, write_data);
+        //$display("[%0t] 0x%08h: WRITE successful", $time, write_data);
         tr_cnt++;
         wr_cnt++;
         wait_clocks(1);
@@ -154,7 +154,7 @@ class drv_int #(int TIMEOUT = 2000);
 
         // Display result
         apb_rd_mbox.put(read_data);
-        $display("[%0t] 0x%08h: READ successful", $time, read_data);
+        //$display("[%0t] 0x%08h: READ successful", $time, read_data);
         tr_cnt++;
         rd_cnt++;
         wait_clocks(1);

@@ -41,7 +41,6 @@ module serial_bridge (
     logic [4:0] bit_cnt;    // Bit counter (0..31) for 32-bit word
     logic [31:0] wr_buf;    // Write buffer
     logic [31:0] rd_buf;    // Read buffer
-    logic sdata_en;         // Enable write to serial
 
     //================================================
     // State continuous assignment and reset
@@ -49,8 +48,9 @@ module serial_bridge (
     always_ff @(posedge sclk or negedge srst) begin
         if (!srst) begin
             state <= IDLE;
-            bit_cnt <= 5'b00000;
-            rd_buf <= 5'b00000;
+            bit_cnt <= 5'b0;
+            rd_buf <= 32'b0;
+            wr_buf <= 32'b0;
         end else begin
             state <= next_state;
             // Increment counter only when data is being transmitted
@@ -62,6 +62,10 @@ module serial_bridge (
             // Read word during WAIT phase
             if ((state == WAIT || state == RD_END) && sdata !== 1'bz)
                 rd_buf <= {rd_buf[30:0], sdata};
+
+            // Get data from RAM A at the start
+            if (state == WRITE && bit_cnt == 5'b0)
+                wr_buf <= rd_data;
         end
     end
 
@@ -76,6 +80,7 @@ module serial_bridge (
         next_state = state;
         rd_en = 1'b0;
         wr_en = 1'b0;
+        wr_data = 32'b0;
 
         case (state)
             IDLE: begin
@@ -92,20 +97,12 @@ module serial_bridge (
             WRITE: begin
                 // Start write transaction
                 sctrl = 1'b1;
-                // Get data from RAM A at the start
-                if (bit_cnt == 5'b00000) begin
-                    wr_buf = rd_data;
-                end
-                // Enable data send via serial
-                sdata_en = 1'b1;
                 // When each 8th bit reached - set pause by WR_END state
                 next_state = (bit_cnt[2:0] == 3'b111) ? WR_END : WRITE;
             end
 
             WR_END: begin
                 sctrl = 1'b1;
-                // Disable data send via serial
-                sdata_en = 1'b0;
                 // If bit counter has cycled - write has ended
                 if (bit_cnt == 5'b00000) begin
                     // End if it is a write transaction

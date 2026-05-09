@@ -1,8 +1,9 @@
-`include "constants.sv"
-
 //====================================================
 // Converter - APB Slave to Serial Master Bridge
 //====================================================
+
+`include "constants.sv"
+
 module converter (
     // APB Slave Interface
     input  logic        PCLK,
