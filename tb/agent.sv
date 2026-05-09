@@ -50,9 +50,9 @@ class agent #(int TIMEOUT = 2000);
                     // Get operation (1 - read, 0 - write)
                     if (rd_data[31] == 1'b0) begin
                         // Store data
+                        //$display("[%0t] Word written in Agent: 0x%08h", $time, rd_data);
                         mem[rd_data[30:27]] = rd_data[26:0];
                         // Calculate sin and store result
-                        //$display("[%0t] Word written in Agent: 0x%08h", $time, rd_data);
                         //$display("[%0t] Input in sin: 0x%0d", $time, mem[rd_data[30:27]]);
                         sin(mem[rd_data[30:27]], mem[rd_data[30:27] + 16]);
                         //$display("[%0t] Output from sin: 0x%0d", $time, mem[rd_data[30:27] + 16]);
@@ -91,16 +91,25 @@ class agent #(int TIMEOUT = 2000);
         input  bit [26:0] x, // Input in radians 0 - 2pi to 0 - 134 217 727
         output bit [31:0] y  // Output in number (IEEE 754)
     );
-        real rad;
-        real result;
+        real rad, result, sign;
 
         // Convert input x into angle in radians
         rad = (real'(x) * 2 * PI / 134217727.0);
         //$display("[%0t] Radians: %0g", $time, rad);
+
+        // Normalize angle from [0, 2PI] to [-PI, PI] range
+        //rad = rad;
+        while (rad > PI) begin
+            rad = rad - 2 * PI;
+        end
+        while (rad < -PI) begin
+            rad = rad + 2 * PI;
+        end
+
         // Calculate Teylor series
         result = rad - (rad**3)/6.0 + (rad**5)/120.0 - (rad**7)/5040.0 + (rad**9)/362880.0;
         //$display("[%0t] Sin value: %0g", $time, result);
-        
+
         // Convert from float to IEEE 754
         y = $shortrealtobits(result);
     endtask

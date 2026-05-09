@@ -74,17 +74,6 @@ class test_full extends ABCTest;
             read(i);
             #10;
         end
-
-        // Write data
-        //perform_transaction(1'b0, 1'b0, 4'h5, 27'hABCDE);
-        // Read data
-        //perform_transaction(1'b0, 1'b1, 4'h5, 27'h0); // Send read operation
-        //perform_transaction(1'b1, 1'b1, 4'h5, 27'h0); // Read data from converter
-        //perform_transaction(1'b1, 1'b1, 4'h5, 27'h0); // Read data from converter
-        
-        //perform_transaction(1'b0, 1'b0, 4'hA, 27'h12345);
-        //perform_transaction(1'b0, 1'b1, 4'hA, 27'h0);
-        //perform_transaction(1'b1, 1'b1, 4'hA, 27'h0);
         
     endtask
 endclass
