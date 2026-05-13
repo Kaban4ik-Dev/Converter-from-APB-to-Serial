@@ -1,6 +1,6 @@
 
 //====================================================
-// All global constants for both rtl and tb
+// All global constants only for rtl
 //====================================================
 
 `ifndef CONSTANTS_SV
@@ -19,8 +19,5 @@ parameter CLK_B = 15; // CLK for Serial in RAM testbench
 // ==== For APB standart ====
 parameter APB_ADDR_W = 32;
 parameter APB_DATA_W = 32;
-
-// ==== For Agent sinus calculation ====
-real PI = 3.14159265358979322846264338327950288419716939937510; // PI constant
 
 `endif

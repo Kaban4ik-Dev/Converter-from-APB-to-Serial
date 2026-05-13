@@ -3,6 +3,7 @@
 //====================================================
 
 `include "../rtl/constants.sv"
+`include "../tb/tb_constants.sv"
 `include "../tb/agent.sv"
 
 module tb_agent;

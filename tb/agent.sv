@@ -3,6 +3,7 @@
 //====================================================
 
 `include "../rtl/constants.sv"
+`include "../tb/tb_constants.sv"
 
 class agent #(int TIMEOUT = 2000);
     string name;           // Name
