@@ -14,13 +14,14 @@ Includes complete simulation environment for **QuestaSim** with modular do-file 
 2. Open project in QuestaSim
 3. Run full system simulation with command: `do run.do`
 
-### Run individual module test
+### For individual module tests
 1. RAM test: `do run_ram.do`
 2. APB interface test: `do run_apb.do`
 3. Serial interface test: `do run_serial.do`
 4. External agent test: `do run_agent.do`
 
 ## Project Structure
+```text
 .
 ├── rtl/ # SystemVerilog source files
 │   ├── apb_bridge.sv 
@@ -55,33 +56,36 @@ Includes complete simulation environment for **QuestaSim** with modular do-file 
 ├── run_apb.do
 ├── run_ram.do
 └── run_serial.do
+```
 
 ## Requirements
 The requirements are based on the environments used during development. Functionality for execution, simulation, or synthesis in other environments is not guaranteed.
-QuestaSim	2024.1 - Simulation & waveform
-Quartus (Quartus Prime 22.1std) Lite Edition - Synthesis
+* QuestaSim	2024.1 - Simulation & waveform
+* Quartus (Quartus Prime 22.1std) Lite Edition - Synthesis
 
 
 ## Data flow diagram
-flowchart LR
+```mermaid
+flowchart TB
     subgraph Testbench ["Testbench Environment"]
         direction TB
         E[Testbench] --> D[Internal driver]
         E[Testbench] -.-> |input commands| C[Scoreboard]
         D -.-> |output data| C
-        
         F[External driver] --> B[External agent<br/>calculates sin]
         B --> F
     end
 
-    subgraph DUT ["DUT: Converter (internal pipeline)"]
+    subgraph DUT ["DUT: Converter"]
         direction LR
         APB[APB bridge] --> RAM_A[RAM A] --> SERIAL[Serial bridge] --> RAM_B[RAM B] --> APB
+        RAM_A ~~~ RAM_B
     end
 
     %% Main data flow
     D <--> |APB in/out| APB
     SERIAL <--> |Serial in/out| F
+```
 
 ## License
 MIT — free for academic and commercial use.
